@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Почта, задачи, Telegram и документы в Claude за один созвон на 30 минут. Артур, 7 лет строю личные системы продуктивности.">
+<meta property="og:title" content="Claude под ключ — вся ваша работа в одном окне">
+<meta property="og:description" content="Почта, задачи, Telegram и документы в Claude за один созвон на 30 минут. Артур, 7 лет строю личные системы продуктивности.">
+<meta property="og:type" content="website">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Claude под ключ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: полноэкранный опрос, один вопрос на экран, плитки с логотипами сервисов; язык по браузеру */
+:root {
+  --bg: #F3F5F4; --surface: #FFFFFF; --fg: #141A1A; --muted: #5A6664;
+  --line: #D9E0DE; --accent: #0D6E66; --accent-ink: #FFFFFF; --signal: #B5651D; --sel: #E3F1EF;
+  --f-display: "Unbounded", "Golos Text", system-ui, sans-serif;
+  --f-body: "Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0E1312; --surface: #161D1C; --fg: #E6ECEA; --muted: #9AA8A5;
+  --line: #27322F; --accent: #4FC7B9; --accent-ink: #0B1412; --signal: #E0A15E; --sel: #16302D;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0E1312; --surface: #161D1C; --fg: #E6ECEA; --muted: #9AA8A5;
+  --line: #27322F; --accent: #4FC7B9; --accent-ink: #0B1412; --signal: #E0A15E; --sel: #16302D;
+  color-scheme: dark }
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font: 17px/1.5 var(--f-body); }
+.app { min-height: 100%; display: grid; grid-template-rows: auto 1fr auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px 20px; }
+.top { display: flex; align-items: center; gap: 14px; max-width: 720px; width: 100%; margin: 0 auto; min-height: 40px; }
+.back { font: inherit; background: none; border: 0; color: var(--muted); cursor: pointer; padding: 8px 4px; }
+.back[disabled] { visibility: hidden; }
+.bar { flex: 1; height: 4px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s; }
+.count { font: 13px var(--f-mono); color: var(--muted); min-width: 34px; text-align: right; }
+.stage { display: grid; align-content: center; max-width: 720px; width: 100%; margin: 0 auto; padding-block: 24px; gap: 26px; }
+h1, h2 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(30px, 6.5vw, 52px); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: clamp(22px, 4.5vw, 32px); font-weight: 500; }
+.sub { color: var(--muted); font-size: 18px; margin: 0; }
+.hint { color: var(--muted); font-size: 14px; margin: -14px 0 0; }
+.logos { display: flex; flex-wrap: wrap; gap: 10px; }
+.logos svg { width: 30px; height: 30px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.tile { font: inherit; color: var(--fg); background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px;
+  padding: 16px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; text-align: left; min-width: 0; }
+.tile:hover { border-color: var(--muted); }
+.tile[aria-pressed="true"] { border-color: var(--accent); background: var(--sel); }
+.tile svg, .mono { width: 26px; height: 26px; flex: none; }
+.mono { display: grid; place-items: center; border-radius: 7px; color: #fff; font: 700 13px var(--f-body); font-style: normal; }
+.tile span { min-width: 0; overflow-wrap: anywhere; }
+.tiles.text .tile { padding: 18px 16px; }
+.group { display: grid; gap: 10px; }
+.group b { font-weight: 600; }
+.btn { font: 600 17px var(--f-body); background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 10px;
+  padding: 15px 26px; cursor: pointer; text-decoration: none; display: inline-block; justify-self: start; }
+.btn[aria-disabled="true"] { opacity: .45; pointer-events: none; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid var(--signal); outline-offset: 3px; }
+textarea.extra { max-width: 100%; resize: vertical; font-size: 17px; }
+input.name, textarea.name { font: inherit; font-size: 20px; padding: 14px 16px; border: 1.5px solid var(--line); border-radius: 10px;
+  background: var(--surface); color: var(--fg); width: 100%; max-width: 420px; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 22px; font: 14px var(--f-mono); color: var(--muted); }
+.facts b { color: var(--fg); font-weight: 500; }
+.msg { white-space: pre-wrap; font: 14px/1.6 var(--f-mono); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 10px; padding: 14px; overflow-x: auto; margin: 0; }
+.ok { color: var(--accent); font-weight: 600; }
+ol.steps { list-style: none; margin: 0; padding: 0; counter-reset: s; display: grid; }
+ol.steps li { counter-increment: s; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 2px 12px;
+  padding: 14px 0; border-top: 1px solid var(--line); }
+ol.steps li:last-child { border-bottom: 1px solid var(--line); }
+ol.steps li::before { content: counter(s); grid-row: span 2; font: 700 20px/1.2 var(--f-display); color: var(--accent); }
+ol.steps span { color: var(--muted); font-size: 16px; }
+.prices { display: grid; gap: 8px; }
+.prices div { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 12px; align-items: baseline; }
+.prices b { font: 600 18px var(--f-display); font-variant-numeric: tabular-nums; }
+.prices span { color: var(--muted); font-size: 15px; }
+p.about { color: var(--fg); font-size: 17px; max-width: 62ch; }
+.links { margin-top: -10px; }
+@media (max-width: 480px) { .prices div { grid-template-columns: minmax(0, 1fr); gap: 0; } }
+.cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+.mail { font-family: var(--f-mono); font-weight: 500; color: var(--fg); user-select: all; overflow-wrap: anywhere; }
+.foot { max-width: 720px; width: 100%; margin: 0 auto; font-size: 13px; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <button class="back" id="back" type="button" disabled></button>
+    <div class="bar"><i id="prog"></i></div>
+    <div class="count" id="count"></div>
+  </div>
+  <main class="stage" id="stage" aria-live="polite"></main>
+  <div class="foot" id="foot"></div>
+</div>
+
+<script>
+const ICONS={"gmail":{"hex":"EA4335","d":"M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"},"maildotru":{"hex":"005FF9","d":"M15.61 12c0 1.99-1.62 3.61-3.61 3.61-1.99 0-3.61-1.62-3.61-3.61 0-1.99 1.62-3.61 3.61-3.61 1.99 0 3.61 1.62 3.61 3.61M12 0C5.383 0 0 5.383 0 12s5.383 12 12 12c2.424 0 4.761-.722 6.76-2.087l.034-.024-1.617-1.879-.027.017A9.494 9.494 0 0 1 12 21.54c-5.26 0-9.54-4.28-9.54-9.54 0-5.26 4.28-9.54 9.54-9.54 5.26 0 9.54 4.28 9.54 9.54a9.63 9.63 0 0 1-.225 2.05c-.301 1.239-1.169 1.618-1.82 1.568-.654-.053-1.42-.52-1.426-1.661V12A6.076 6.076 0 0 0 12 5.93 6.076 6.076 0 0 0 5.93 12 6.076 6.076 0 0 0 12 18.07a6.02 6.02 0 0 0 4.3-1.792 3.9 3.9 0 0 0 3.32 1.805c.874 0 1.74-.292 2.437-.821.719-.547 1.256-1.336 1.553-2.285.047-.154.135-.504.135-.507l.002-.013c.175-.76.253-1.52.253-2.457 0-6.617-5.383-12-12-12"},"icloud":{"hex":"3693F3","d":"M13.762 4.29a6.51 6.51 0 0 0-5.669 3.332 3.571 3.571 0 0 0-1.558-.36 3.571 3.571 0 0 0-3.516 3A4.918 4.918 0 0 0 0 14.796a4.918 4.918 0 0 0 4.92 4.914 4.93 4.93 0 0 0 .617-.045h14.42c2.305-.272 4.041-2.258 4.043-4.589v-.009a4.594 4.594 0 0 0-3.727-4.508 6.51 6.51 0 0 0-6.511-6.27z"},"ticktick":{"hex":"4772FA","d":"M12 0C5.383 0 0 5.383 0 12s5.383 12 12 12 12-5.383 12-12h-2.7c0 5.128-4.172 9.3-9.3 9.3-5.128 0-9.3-4.172-9.3-9.3 0-5.128 4.172-9.3 9.3-9.3V0Zm7.4 2.583-7.505 9.371L8.388 9.08l-2.002 2.436 4.741 3.888a1.573 1.573 0 0 0 2.231-.233l8.504-10.617L19.4 2.583Z"},"todoist":{"hex":"E44332","d":"M21 0H3C1.35 0 0 1.35 0 3v3.858s3.854 2.24 4.098 2.38c.31.18.694.177 1.004 0 .26-.147 8.02-4.608 8.136-4.675.279-.161.58-.107.748-.01.164.097.606.348.84.48.232.134.221.502.013.622l-9.712 5.59c-.346.2-.69.204-1.048.002C3.478 10.907.998 9.463 0 8.882v2.02l4.098 2.38c.31.18.694.177 1.004 0 .26-.147 8.02-4.609 8.136-4.676.279-.16.58-.106.748-.008.164.096.606.347.84.48.232.133.221.5.013.62-.208.121-9.288 5.346-9.712 5.59-.346.2-.69.205-1.048.002C3.478 14.951.998 13.506 0 12.926v2.02l4.098 2.38c.31.18.694.177 1.004 0 .26-.147 8.02-4.609 8.136-4.676.279-.16.58-.106.748-.009.164.097.606.348.84.48.232.133.221.502.013.622l-9.712 5.59c-.346.199-.69.204-1.048.001C3.478 18.994.998 17.55 0 16.97V21c0 1.65 1.35 3 3 3h18c1.65 0 3-1.35 3-3V3c0-1.65-1.35-3-3-3z"},"notion":{"hex":null,"d":"M4.459 4.208c.746.606 1.026.56 2.428.466l13.215-.793c.28 0 .047-.28-.046-.326L17.86 1.968c-.42-.326-.981-.7-2.055-.607L3.01 2.295c-.466.046-.56.28-.374.466zm.793 3.08v13.904c0 .747.373 1.027 1.214.98l14.523-.84c.841-.046.935-.56.935-1.167V6.354c0-.606-.233-.933-.748-.887l-15.177.887c-.56.047-.747.327-.747.933zm14.337.745c.093.42 0 .84-.42.888l-.7.14v10.264c-.608.327-1.168.514-1.635.514-.748 0-.935-.234-1.495-.933l-4.577-7.186v6.952L12.21 19s0 .84-1.168.84l-3.222.186c-.093-.186 0-.653.327-.746l.84-.233V9.854L7.822 9.76c-.094-.42.14-1.026.793-1.073l3.456-.233 4.764 7.279v-6.44l-1.215-.139c-.093-.514.28-.887.747-.933zM1.936 1.035l13.31-.98c1.634-.14 2.055-.047 3.082.7l4.249 2.986c.7.513.934.653.934 1.213v16.378c0 1.026-.373 1.634-1.68 1.726l-15.458.934c-.98.047-1.448-.093-1.962-.747l-3.129-4.06c-.56-.747-.793-1.306-.793-1.96V2.667c0-.839.374-1.54 1.447-1.632z"},"trello":{"hex":"0052CC","d":"M21.147 0H2.853A2.86 2.86 0 000 2.853v18.294A2.86 2.86 0 002.853 24h18.294A2.86 2.86 0 0024 21.147V2.853A2.86 2.86 0 0021.147 0zM10.34 17.287a.953.953 0 01-.953.953h-4a.954.954 0 01-.954-.953V5.38a.953.953 0 01.954-.953h4a.954.954 0 01.953.953zm9.233-5.467a.944.944 0 01-.953.947h-4a.947.947 0 01-.953-.947V5.38a.953.953 0 01.953-.953h4a.954.954 0 01.953.953z"},"asana":{"hex":"F06A6A","d":"M18.78 12.653c-2.882 0-5.22 2.336-5.22 5.22s2.338 5.22 5.22 5.22 5.22-2.34 5.22-5.22-2.336-5.22-5.22-5.22zm-13.56 0c-2.88 0-5.22 2.337-5.22 5.22s2.338 5.22 5.22 5.22 5.22-2.338 5.22-5.22-2.336-5.22-5.22-5.22zm12-6.525c0 2.883-2.337 5.22-5.22 5.22-2.882 0-5.22-2.337-5.22-5.22 0-2.88 2.338-5.22 5.22-5.22 2.883 0 5.22 2.34 5.22 5.22z"},"clickup":{"hex":"7B68EE","d":"M2 18.439l3.69-2.828c1.961 2.56 4.044 3.739 6.363 3.739 2.307 0 4.33-1.166 6.203-3.704L22 18.405C19.298 22.065 15.941 24 12.053 24 8.178 24 4.788 22.078 2 18.439zM12.04 6.15l-6.568 5.66-3.036-3.52L12.055 0l9.543 8.296-3.05 3.509z"},"googletasks":{"hex":"2684FC","d":"M11.383.617C5.097.617 0 5.714 0 12c0 6.286 5.097 11.383 11.383 11.383 6.286 0 11.38-5.097 11.38-11.383a11.34 11.34 0 0 0-.878-4.389l-3.203 3.203c.062.387.1.782.1 1.186a7.398 7.398 0 1 1-7.4-7.398c1.499 0 2.889.448 4.054 1.214l2.857-2.857a11.325 11.325 0 0 0-6.91-2.342zm9.674.756c-.292 0-.583.112-.805.334-2.97 2.965-5.934 5.934-8.9 8.902L9.596 8.854a1.139 1.139 0 0 0-1.61 0l-1.775 1.773a1.139 1.139 0 0 0 0 1.61l4.166 4.163a1.421 1.421 0 0 0 2.012 0L23.666 5.121a1.136 1.136 0 0 0 0-1.61l-1.805-1.804a1.136 1.136 0 0 0-.804-.334z"},"telegram":{"hex":"26A5E4","d":"M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"},"googledrive":{"hex":"4285F4","d":"M12.01 1.485c-2.082 0-3.754.02-3.743.047.01.02 1.708 3.001 3.774 6.62l3.76 6.574h3.76c2.081 0 3.753-.02 3.742-.047-.005-.02-1.708-3.001-3.775-6.62l-3.76-6.574zm-4.76 1.73a789.828 789.861 0 0 0-3.63 6.319L0 15.868l1.89 3.298 1.885 3.297 3.62-6.335 3.618-6.33-1.88-3.287C8.1 4.704 7.255 3.22 7.25 3.214zm2.259 12.653-.203.348c-.114.198-.96 1.672-1.88 3.287a423.93 423.948 0 0 1-1.698 2.97c-.01.026 3.24.042 7.222.042h7.244l1.796-3.157c.992-1.734 1.85-3.23 1.906-3.323l.104-.167h-7.249z"},"googlecalendar":{"hex":"4285F4","d":"M18.316 5.684H24v12.632h-5.684V5.684zM5.684 24h12.632v-5.684H5.684V24zM18.316 5.684V0H1.895A1.894 1.894 0 0 0 0 1.895v16.421h5.684V5.684h12.632zm-7.207 6.25v-.065c.272-.144.5-.349.687-.617s.279-.595.279-.982c0-.379-.099-.72-.3-1.025a2.05 2.05 0 0 0-.832-.714 2.703 2.703 0 0 0-1.197-.257c-.6 0-1.094.156-1.481.467-.386.311-.65.671-.793 1.078l1.085.452c.086-.249.224-.461.413-.633.189-.172.445-.257.767-.257.33 0 .602.088.816.264a.86.86 0 0 1 .322.703c0 .33-.12.589-.36.778-.24.19-.535.284-.886.284h-.567v1.085h.633c.407 0 .748.109 1.02.327.272.218.407.499.407.843 0 .336-.129.614-.387.832s-.565.327-.924.327c-.351 0-.651-.103-.897-.311-.248-.208-.422-.502-.521-.881l-1.096.452c.178.616.505 1.082.977 1.401.472.319.984.478 1.538.477a2.84 2.84 0 0 0 1.293-.291c.382-.193.684-.458.902-.794.218-.336.327-.72.327-1.149 0-.429-.115-.797-.344-1.105a2.067 2.067 0 0 0-.881-.689zm2.093-1.931l.602.913L15 10.045v5.744h1.187V8.446h-.827l-2.158 1.557zM22.105 0h-3.289v5.184H24V1.895A1.894 1.894 0 0 0 22.105 0zm-3.289 23.5l4.684-4.684h-4.684V23.5zM0 22.105C0 23.152.848 24 1.895 24h3.289v-5.184H0v3.289z"},"apple":{"hex":null,"d":"M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"},"claude":{"hex":"D97757","d":"m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"},"linkedin":{"hex":"0A66C2","d":"M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"},"windows":{"hex":"0078D4","d":"M0 0h11.4v11.4H0zM12.6 0H24v11.4H12.6zM0 12.6h11.4V24H0zM12.6 12.6H24V24H12.6z"}};
+(function () {
+  var T = {
+    ru: {
+      title: "Claude под ключ", back: "← Назад", next: "Дальше",
+      h1: "Вся ваша работа в одном окне Claude",
+      sub: "Почта, задачи, Telegram и документы. Пишете Claude одной фразой, он сам находит письмо, файл или переписку и готовит ответ.",
+      facts: [["9 900 ₽", "первым 10 клиентам"], ["30 мин", "созвон"], ["14 дней", "поддержки и возврат"]],
+      howLink: "Как это работает", aboutLink: "Кто я",
+      howH: "Как это работает",
+      howSteps: [["Подбор, 2 минуты", "Отмечаете, чем пользуетесь, и отправляете заявку."],
+        ["Подготовка, 10 минут", "Присылаю памятку: поставить приложение Claude и Python. Если что-то не встаёт, разбираемся до созвона."],
+        ["Созвон, 30 минут", "Claude ставит всё сам по инструкциям, вы отвечаете на несколько вопросов и входите в свои аккаунты. Я на связи и слежу, чтобы всё прошло чисто."],
+        ["14 дней поддержки", "Пишете в Telegram, если что-то работает не так. Не пользуетесь через 14 дней — верну деньги."]],
+      howWhatH: "Что подключаем",
+      howWhat: "Почту (Gmail, Outlook, Яндекс, Mail.ru, iCloud), Google Drive, документы и календарь, Telegram, LinkedIn и менеджер задач (TickTick, Todoist, Notion, Trello и другие). Плюс навыки: разбор почты и чатов, ответы вашим голосом, тексты без признаков AI, заметки.",
+      howSafeH: "Безопасность",
+      howSafe: "Ключи и пароли остаются на вашем компьютере. Наружу ничего не уходит без вашего согласия: ни письмо, ни сообщение.",
+      howPriceH: "Цены",
+      howPrices: [["9 900 ₽", "созвон + 14 дней поддержки, первым 10 клиентам; потом 14 900 ₽"],
+        ["29 900 ₽", "созвон + 30 дней, LinkedIn и тон ваших писем"], ["от 60 000 ₽", "несколько сессий под вашу работу"]],
+      aboutH: "Привет, я Артур",
+      about: ["Систематизирую свою жизнь со школы: задачи, заметки, время. Благодаря этому я учился в университете, работал на двух работах сразу и успевал жить своей жизнью. Перепробовал десятки приложений, прошёл много курсов, вёл YouTube-блог про тайм-менеджмент и даже пробовал запустить на эту тему свой стартап. Сейчас работаю в венчуре.",
+        "Последние семь лет я искал систему, где задачи, заметки и знания работают вместе и ничего не теряется. С AI она наконец сложилась. Claude сам разбирает почту и чаты, превращает их в задачи, помнит, что я записывал, и разбивает большие неприятные дела на шаги, с которых легко начать.",
+        "Теперь я ставлю такую систему другим: за один созвон, под вашу работу и ваши сервисы."],
+      start: "Подобрать за минуту", free: "Сначала попробовать бесплатно",
+      freeH: "Бесплатный стартовый набор",
+      freeSub: "Папка, которую вы открываете в Claude: установка в один клик, подключение главного источника (Gmail или Telegram) и навыки «ответ вашим голосом», «тексты без признаков AI», «заметки», «разбор документа».",
+      freeBtn: "Получить набор в Telegram", freeMsg: "Привет! Хочу бесплатный стартовый набор Claude.", several: "Можно несколько", severalOrNone: "Можно несколько или ничего",
+      goalsHint: "Варианты под то, что вы выбрали. Можно несколько",
+      qMail: "Какая у вас почта?", qTasks: "Где вы ведёте задачи?", qMore: "Что ещё подключить?",
+      qGoals: "Что нужно в первую очередь?", qPlan: "Какой формат подходит?",
+      qExtra: "Что ещё вы хотите, чтобы Claude делал?",
+      extraHint: "Своими словами, если есть. Например: отчёт руководителю по пятницам, расшифровка созвонов, работа с CRM. Можно пропустить",
+      extraPh: "Например: каждое утро сводка писем от клиентов", qSetup: "Компьютер и подписка", qName: "Как вас зовут?",
+      os: "Компьютер", sub2: "Подписка Claude", namePh: "Имя",
+      done: "Готово", thanks: "спасибо",
+      doneSub: "Отправьте это сообщение мне в Telegram. Я отвечу и предложу время для созвона.",
+      send: "Отправить в Telegram",
+      sendHint: "Кнопка копирует текст и открывает чат с @dzubaart. Если текст не вставился сам, вставьте его.",
+      copied: "Текст скопирован.", copiedTail: " Вставьте его в чат, если он не появился сам.",
+      selected: "Текст выделен: скопируйте его и вставьте в чат.",
+      foot: "Артур · настраиваю Claude под работу человека · @dzubaart · dzubaart1@gmail.com",
+      orEmail: "Нет Telegram? Пришлите тот же текст на почту:", copyEmail: "Скопировать адрес", emailCopied: "Адрес скопирован",
+      L: { other: "Другая", outlook: "Outlook / Microsoft 365", yandex: "Яндекс", maildotru: "Mail.ru", none: "Пока нигде",
+           mstodo: "Microsoft To Do", planfix: "ПланФикс", googledrive: "Google Drive и документы", googlecalendar: "Календарь",
+           apple: "Mac", "sub-yes": "Есть Pro или Max", "sub-no": "Пока нет",
+           "g-mail": "Разбирать почту и отвечать", "g-tasks": "Задачи из писем и чатов", "g-newtasks": "Начать вести задачи",
+           "g-tg": "Разбирать Telegram", "g-li": "Переписка в LinkedIn", "g-drive": "Находить файлы и документы",
+           "g-cal": "План дня по календарю", "g-human": "Тексты без признаков AI", "g-week": "Недельный отчёт о сделанном",
+           p1: "Созвон 30 минут + 14 дней поддержки · 9 900 ₽ первым 10, потом 14 900 ₽",
+           p2: "Созвон + 30 дней поддержки, LinkedIn и тон писем · 29 900 ₽",
+           p3: "Несколько сессий под мою работу · от 60 000 ₽" },
+      m: { hello: "Привет! Хочу настройку Claude.", name: "Имя", mail: "Почта", tasks: "Задачи", more: "Ещё",
+           goals: "В первую очередь", plan: "Формат", extra: "Ещё хочу", pc: "Компьютер", sub: "подписка Claude",
+           newtasks: "менеджер задач с нуля", week: "недельный отчёт" }
+    },
+    en: {
+      title: "Claude, set up for you", back: "← Back", next: "Next",
+      h1: "All your work in one Claude window",
+      sub: "Email, tasks, Telegram and documents. Ask Claude in one sentence and it finds the email, file or chat and drafts the reply.",
+      facts: [["$197", "for the first 10 clients"], ["30 min", "call"], ["14 days", "support + refund"]],
+      howLink: "How it works", aboutLink: "About me",
+      howH: "How it works",
+      howSteps: [["Pick your setup, 2 minutes", "Tick the tools you use and send the request."],
+        ["Prepare, 10 minutes", "I send a short checklist: install the Claude app and Python. If anything fails, we fix it before the call."],
+        ["Call, 30 minutes", "Claude installs everything from instructions, you answer a few questions and sign in to your accounts. I'm on the call to make sure it goes cleanly."],
+        ["14 days of support", "Message me if something doesn't work. Not using it after 14 days? I'll refund you."]],
+      howWhatH: "What we connect",
+      howWhat: "Email (Gmail, Outlook, iCloud and other IMAP mail), Google Drive, docs and calendar, Telegram, LinkedIn and your task manager (TickTick, Todoist, Notion, Trello and more). Plus skills: inbox and chat triage, replies in your voice, writing that doesn't sound like AI, notes.",
+      howSafeH: "Security",
+      howSafe: "Keys and passwords stay on your computer. Nothing goes out without your approval: no email, no message.",
+      howPriceH: "Pricing",
+      howPrices: [["$197", "call + 14 days of support, first 10 clients; then $297"],
+        ["$597", "call + 30 days, LinkedIn and your email tone"], ["from $1,500", "several sessions built around your work"]],
+      aboutH: "Hi, I'm Arthur",
+      about: ["I've been building systems for my own life since school: tasks, notes, time. That's how I got through university while holding two jobs and still had a life. I've tried dozens of apps and plenty of courses, ran a YouTube channel on time management, and even tried to start a company around it. Today I work in venture capital.",
+        "For seven years I looked for a setup where tasks, notes and knowledge work together and nothing gets lost. AI finally made it work. Claude reads my email and chats, turns them into tasks, remembers what I wrote down, and breaks big unpleasant jobs into steps that are easy to start.",
+        "Now I set up the same system for other people, in one call, around your work and your tools."],
+      start: "Find my setup in a minute", free: "Try it free first",
+      freeH: "Free starter kit",
+      freeSub: "A folder you open in Claude: one-click install, your main source connected (Gmail or Telegram), and skills for replies in your voice, writing that doesn't sound like AI, notes, and document review.",
+      freeBtn: "Get the kit on Telegram", freeMsg: "Hi! I'd like the free Claude starter kit.", several: "Pick one or more", severalOrNone: "Pick any, or none",
+      goalsHint: "Options based on what you picked. Pick one or more",
+      qMail: "Which email do you use?", qTasks: "Where do you keep your tasks?", qMore: "What else should we connect?",
+      qGoals: "What do you need first?", qPlan: "Which format fits?",
+      qExtra: "What else should Claude do for you?",
+      extraHint: "In your own words, if anything. For example: a Friday report for my manager, call transcripts, CRM updates. You can skip this",
+      extraPh: "For example: a morning digest of client emails", qSetup: "Computer and subscription", qName: "What's your name?",
+      os: "Computer", sub2: "Claude subscription", namePh: "Name",
+      done: "Done", thanks: "thank you",
+      doneSub: "Send this message to me on Telegram. I'll reply and suggest a time for the call.",
+      send: "Send on Telegram",
+      sendHint: "The button copies the text and opens a chat with @dzubaart. If the text doesn't appear, paste it.",
+      copied: "Copied.", copiedTail: " Paste it into the chat if it isn't there already.",
+      selected: "Text selected: copy it and paste it into the chat.",
+      foot: "Arthur · I set up Claude around how you work · dzubaart1@gmail.com · @dzubaart",
+      orEmail: "Prefer email? Send the same text to:", copyEmail: "Copy address", emailCopied: "Address copied",
+      L: { other: "Other", outlook: "Outlook / Microsoft 365", yandex: "Yandex", maildotru: "Mail.ru", none: "Nowhere yet",
+           mstodo: "Microsoft To Do", planfix: "Planfix", googledrive: "Google Drive and docs", googlecalendar: "Calendar",
+           apple: "Mac", "sub-yes": "Pro or Max", "sub-no": "Not yet",
+           "g-mail": "Sort email and reply", "g-tasks": "Tasks from emails and chats", "g-newtasks": "Start keeping tasks",
+           "g-tg": "Sort Telegram", "g-li": "LinkedIn messages", "g-drive": "Find files and documents",
+           "g-cal": "Daily plan from my calendar", "g-human": "Writing that doesn't sound like AI", "g-week": "Weekly report of what I did",
+           p1: "30-min call + 14 days of support · $197 for the first 10, then $297",
+           p2: "Call + 30 days of support, LinkedIn and email tone · $597",
+           p3: "Several sessions built around my work · from $1,500" },
+      m: { hello: "Hi! I'd like a Claude setup.", name: "Name", mail: "Email", tasks: "Tasks", more: "Also",
+           goals: "First priority", plan: "Format", extra: "Also want", pc: "Computer", sub: "Claude subscription",
+           newtasks: "task manager from scratch", week: "weekly report" }
+    }
+  };
+  // язык только по браузеру, без переключателя (владелец, 28.10.2026)
+  var lang = /^(ru|uk|be|kk)/i.test(navigator.language || "") ? "ru" : "en";
+  function t(k) { return T[lang][k]; }
+  function label(v) { return T[lang].L[v] || NAMES[v] || v; }
+  var NAMES = { gmail: "Gmail", icloud: "iCloud", ticktick: "TickTick", todoist: "Todoist", notion: "Notion", trello: "Trello",
+    asana: "Asana", clickup: "ClickUp", googletasks: "Google Tasks", telegram: "Telegram", linkedin: "LinkedIn", windows: "Windows" };
+
+  var MONO = { outlook: ["O", "#0078D4"], yandex: ["Я", "#FC3F1D"], mstodo: ["✓", "#2564CF"],
+    planfix: ["ПФ", "#E8562A"], other: ["@", "#6B7775"], none: ["—", "#6B7775"] };
+  function icon(k) {
+    if (ICONS[k]) {
+      var c = ICONS[k].hex ? "#" + ICONS[k].hex : "currentColor";
+      return '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="' + c + '" d="' + ICONS[k].d + '"/></svg>';
+    }
+    var m = MONO[k] || ["?", "#6B7775"];
+    return '<i class="mono" style="background:' + m[1] + '" aria-hidden="true">' + m[0] + '</i>';
+  }
+  var st = { mail: [], tasks: [], more: [], goals: [], plan: [], os: [], sub: [], name: "", extra: "" };
+  function has(k, v) { return st[k].indexOf(v) >= 0; }
+  // варианты «в первую очередь» зависят от ответов выше: нет Telegram — нет и разбора Telegram
+  var GOALS = [
+    ["g-mail", function () { return st.mail.length > 0; }],
+    ["g-tasks", function () { return st.tasks.length > 0 && !has("tasks", "none"); }],
+    ["g-newtasks", function () { return has("tasks", "none"); }],
+    ["g-tg", function () { return has("more", "telegram"); }],
+    ["g-li", function () { return has("more", "linkedin"); }],
+    ["g-drive", function () { return has("more", "googledrive"); }],
+    ["g-cal", function () { return has("more", "googlecalendar"); }],
+    ["g-human", function () { return true; }],
+    ["g-week", function () { return true; }]
+  ];
+  var STEPS = [
+    { id: "intro" },
+    { id: "mail", q: "qMail", hint: "several", multi: true,
+      opts: ["gmail", "outlook", "yandex", "maildotru", "icloud", "other"] },
+    { id: "tasks", q: "qTasks", hint: "several", multi: true,
+      opts: ["ticktick", "todoist", "notion", "trello", "asana", "clickup", "googletasks", "mstodo", "planfix", "none"] },
+    { id: "more", q: "qMore", hint: "severalOrNone", multi: true,
+      opts: ["telegram", "linkedin", "googledrive", "googlecalendar"] },
+    { id: "goals", q: "qGoals", hint: "goalsHint", multi: true, text: true,
+      opts: function () { return GOALS.filter(function (g) { return g[1](); }).map(function (g) { return g[0]; }); } },
+    { id: "plan", q: "qPlan", text: true, opts: ["p1", "p2", "p3"] },
+    { id: "extra", q: "qExtra", hint: "extraHint" },
+    { id: "setup", q: "qSetup", groups: [
+      { id: "os", label: "os", opts: ["windows", "apple"] },
+      { id: "sub", label: "sub2", text: true, opts: ["sub-yes", "sub-no"] }] },
+    { id: "name", q: "qName" },
+    { id: "done" }
+  ];
+  var i = 0;
+  var stage = document.getElementById("stage");
+
+  function toggle(k, v, multi) {
+    if (!multi) { st[k] = has(k, v) ? [] : [v]; return; }
+    if (v === "none") { st[k] = has(k, v) ? [] : ["none"]; return; }
+    st[k] = st[k].filter(function (x) { return x !== "none"; });
+    st[k] = has(k, v) ? st[k].filter(function (x) { return x !== v; }) : st[k].concat(v);
+  }
+  function tiles(key, opts, multi, text) {
+    return '<div class="tiles' + (text ? " text" : "") + '" role="group">' + opts.map(function (o) {
+      return '<button type="button" class="tile" data-k="' + key + '" data-v="' + o + '" data-m="' + (multi ? 1 : 0) +
+        '" aria-pressed="' + has(key, o) + '">' + (text ? "" : icon(o)) + '<span>' + label(o) + '</span></button>';
+    }).join("") + '</div>';
+  }
+  function canGo() {
+    var s = STEPS[i];
+    if (s.id === "mail" || s.id === "tasks" || s.id === "goals" || s.id === "plan") return st[s.id].length > 0;
+    if (s.id === "setup") return st.os.length > 0 && st.sub.length > 0;
+    return true;
+  }
+  function names(k) { return st[k].map(label); }
+  function packs() {
+    var p = ["naladka"], custom = [], m = t("m");
+    var gmail = has("mail", "gmail");
+    if (gmail || has("more", "googledrive") || has("more", "googlecalendar") || has("tasks", "googletasks")) p.push("google");
+    if (gmail && has("goals", "g-mail")) p.push("inbox");
+    if (has("more", "telegram")) { p.push("telegram"); if (has("goals", "g-tg")) p.push("tg-inbox"); }
+    st.mail.forEach(function (v) { if (v !== "gmail") custom.push(label(v)); });
+    st.tasks.forEach(function (v) { if (v !== "none") custom.push(label(v)); });
+    if (has("more", "linkedin")) custom.push("LinkedIn");
+    if (has("goals", "g-human")) custom.push("humanizer");
+    if (has("goals", "g-week")) custom.push(m.week);
+    if (has("goals", "g-newtasks")) custom.push(m.newtasks);
+    return { p: p, custom: custom };
+  }
+  function message() {
+    var k = packs(), m = t("m"), L = [m.hello];
+    if (st.name) L.push(m.name + ": " + st.name);
+    L.push(m.mail + ": " + names("mail").join(", "));
+    L.push(m.tasks + ": " + names("tasks").join(", "));
+    if (st.more.length) L.push(m.more + ": " + names("more").join(", "));
+    L.push(m.goals + ": " + names("goals").join(", "));
+    L.push(m.plan + ": " + names("plan").join(""));
+    if (st.extra) L.push(m.extra + ": " + st.extra);
+    L.push(m.pc + ": " + names("os").join("") + ", " + m.sub + ": " + names("sub").join(""));
+    L.push("", "#lang " + lang, "#pack " + k.p.join(" "));
+    if (k.custom.length) L.push("#custom " + k.custom.join(", "));
+    return L.join("\n");
+  }
+  function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function chrome() {
+    var n = STEPS.length - 1;
+    document.documentElement.lang = lang;
+    document.title = t("title");
+    document.getElementById("back").textContent = t("back");
+    document.getElementById("back").disabled = i === 0;
+    document.getElementById("prog").style.width = Math.round(i / n * 100) + "%";
+    document.getElementById("count").textContent = i > 0 && i < n ? i + "/" + (n - 1) : "";
+    document.getElementById("foot").textContent = t("foot");
+  }
+  var view = "";   // "" — опрос; "free" | "how" | "about" — отдельные экраны с первого
+  function startBtn() {
+    var b = document.getElementById("go");
+    if (b) b.onclick = function () { view = ""; i = 1; render(); };
+  }
+  function render() {
+    var s = STEPS[i], h = "";
+    chrome();
+    if (view === "how") {
+      document.getElementById("back").disabled = false;
+      stage.innerHTML = '<h2>' + t("howH") + '</h2><ol class="steps">' + t("howSteps").map(function (x) {
+          return '<li><b>' + x[0] + '</b><span>' + x[1] + '</span></li>'; }).join("") + '</ol>' +
+        '<div class="group"><b>' + t("howWhatH") + '</b><p class="sub">' + t("howWhat") + '</p></div>' +
+        '<div class="group"><b>' + t("howSafeH") + '</b><p class="sub">' + t("howSafe") + '</p></div>' +
+        '<div class="group"><b>' + t("howPriceH") + '</b><div class="prices">' + t("howPrices").map(function (x) {
+          return '<div><b>' + x[0] + '</b><span>' + x[1] + '</span></div>'; }).join("") + '</div></div>' +
+        '<button class="btn" type="button" id="go">' + t("start") + '</button>';
+      startBtn();
+      return;
+    }
+    if (view === "about") {
+      document.getElementById("back").disabled = false;
+      stage.innerHTML = '<h2>' + t("aboutH") + '</h2>' + t("about").map(function (x) {
+          return '<p class="sub about">' + x + '</p>'; }).join("") +
+        '<button class="btn" type="button" id="go">' + t("start") + '</button>';
+      startBtn();
+      return;
+    }
+    if (view === "free") {
+      document.getElementById("back").disabled = false;
+      stage.innerHTML = '<h2>' + t("freeH") + '</h2><p class="sub">' + t("freeSub") + '</p>' +
+        '<a class="btn" target="_blank" rel="noopener" href="https://t.me/dzubaart?text=' + encodeURIComponent(t("freeMsg")) + '">' + t("freeBtn") + '</a>' +
+        '<p class="sub" style="font-size:16px">' + t("orEmail") + ' <b class="mail">dzubaart1@gmail.com</b></p>';
+      return;
+    }
+    if (s.id === "intro") {
+      stage.innerHTML = '<h1>' + t("h1") + '</h1><p class="sub">' + t("sub") + '</p>' +
+        '<div class="logos">' + ["gmail", "telegram", "notion", "todoist", "ticktick", "googledrive", "linkedin", "trello"].map(icon).join("") + '</div>' +
+        '<div class="facts">' + t("facts").map(function (f) { return '<span><b>' + f[0] + '</b> ' + f[1] + '</span>'; }).join("") + '</div>' +
+        '<div class="cta-row"><button class="btn" type="button" id="next">' + t("start") + '</button>' +
+        '<button class="back" type="button" id="free">' + t("free") + ' →</button></div>' +
+        '<div class="cta-row links"><button class="back" type="button" id="how">' + t("howLink") + '</button>' +
+        '<button class="back" type="button" id="about">' + t("aboutLink") + '</button></div>';
+      document.getElementById("next").onclick = next;
+      document.getElementById("free").onclick = function () { view = "free"; render(); };
+      document.getElementById("how").onclick = function () { view = "how"; render(); };
+      document.getElementById("about").onclick = function () { view = "about"; render(); };
+      return;
+    }
+    if (s.id === "done") {
+      var msg = message();
+      stage.innerHTML = '<h2>' + t("done") + ', ' + (st.name ? esc(st.name) : t("thanks")) + '!</h2>' +
+        '<p class="sub">' + t("doneSub") + '</p><pre class="msg" id="msg"></pre>' +
+        '<a class="btn" id="send" target="_blank" rel="noopener" href="https://t.me/dzubaart?text=' + encodeURIComponent(msg) + '">' + t("send") + '</a>' +
+        '<p class="hint" id="hint" style="margin:0">' + t("sendHint") + '</p>' +
+        '<p class="sub" style="font-size:16px">' + t("orEmail") + ' <b class="mail">dzubaart1@gmail.com</b> ' +
+        '<button type="button" class="back" id="copymail">' + t("copyEmail") + '</button></p>';
+      document.getElementById("msg").textContent = msg;
+      document.getElementById("send").addEventListener("click", function () { copy(msg); });
+      document.getElementById("copymail").addEventListener("click", function (e) {
+        var b = e.currentTarget;
+        try { navigator.clipboard.writeText("dzubaart1@gmail.com").then(function () { b.textContent = t("emailCopied"); }, function () {}); }
+        catch (err) { /* адрес виден текстом, его можно выделить */ }
+      });
+      return;
+    }
+    if (s.id === "goals") {
+      var ok = s.opts();
+      st.goals = st.goals.filter(function (v) { return ok.indexOf(v) >= 0; });
+    }
+    h = '<h2>' + t(s.q) + '</h2>' + (s.hint ? '<p class="hint">' + t(s.hint) + '</p>' : "");
+    if (s.opts) h += tiles(s.id, typeof s.opts === "function" ? s.opts() : s.opts, s.multi, s.text);
+    if (s.groups) h += s.groups.map(function (g) {
+      return '<div class="group"><b>' + t(g.label) + '</b>' + tiles(g.id, g.opts, false, g.text) + '</div>';
+    }).join("");
+    if (s.id === "extra") h += '<textarea class="name extra" id="extra" rows="4" placeholder="' + t("extraPh") + '">' + esc(st.extra) + '</textarea>';
+    if (s.id === "name") h += '<input class="name" id="name" autocomplete="given-name" placeholder="' + t("namePh") + '" value="' + esc(st.name) + '">';
+    h += '<button class="btn" type="button" id="next" aria-disabled="' + !canGo() + '">' + t("next") + '</button>';
+    stage.innerHTML = h;
+    var ex = document.getElementById("extra");
+    if (ex) { ex.focus(); ex.oninput = function () { st.extra = ex.value.trim(); }; }
+    var nm = document.getElementById("name");
+    if (nm) {
+      nm.focus();
+      nm.oninput = function () { st.name = nm.value.trim(); };
+      nm.onkeydown = function (e) { if (e.key === "Enter") next(); };
+    }
+    document.getElementById("next").onclick = next;
+  }
+  function next() { if (canGo() && i < STEPS.length - 1) { i++; render(); } }
+  function copy(msg) {
+    var hint = document.getElementById("hint");
+    function sel() {
+      var r = document.createRange(); r.selectNodeContents(document.getElementById("msg"));
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      hint.textContent = t("selected");
+    }
+    try {
+      navigator.clipboard.writeText(msg).then(function () {
+        hint.innerHTML = '<span class="ok">' + t("copied") + '</span>' + t("copiedTail");
+      }, sel);
+    } catch (e) { sel(); }
+  }
+  stage.addEventListener("click", function (e) {
+    var b = e.target.closest(".tile");
+    if (!b) return;
+    toggle(b.dataset.k, b.dataset.v, b.dataset.m === "1");
+    b.parentNode.querySelectorAll(".tile").forEach(function (x) { x.setAttribute("aria-pressed", has(x.dataset.k, x.dataset.v)); });
+    document.getElementById("next").setAttribute("aria-disabled", !canGo());
+  });
+  document.getElementById("back").onclick = function () {
+    if (view) { view = ""; render(); } else if (i > 0) { i--; render(); }
+  };
+  render();
+})();
+</script>
+</body>
+</html>
