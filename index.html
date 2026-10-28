@@ -3,31 +3,38 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="Почта, задачи, Telegram и документы в Claude за один созвон на 30 минут. Артур, 7 лет строю личные системы продуктивности.">
-<meta property="og:title" content="Claude под ключ — вся ваша работа в одном окне">
-<meta property="og:description" content="Почта, задачи, Telegram и документы в Claude за один созвон на 30 минут. Артур, 7 лет строю личные системы продуктивности.">
+<meta name="description" content="Email, chats, tasks and notes in one Claude window. Set up in one call by Arthur, seven years building personal systems.">
+<meta property="og:title" content="Steerwell: your personal AI operating system">
+<meta property="og:description" content="Email, chats, tasks and notes in one Claude window. Set up in one call by Arthur, seven years building personal systems.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://dzubaart1.github.io/claude-setup/">
+<meta property="og:image" content="https://dzubaart1.github.io/claude-setup/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
-<title>Claude под ключ</title>
+<title>Steerwell</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;650;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: полноэкранный опрос, один вопрос на экран, плитки с логотипами сервисов; язык по браузеру */
 :root {
-  --bg: #F3F5F4; --surface: #FFFFFF; --fg: #141A1A; --muted: #5A6664;
-  --line: #D9E0DE; --accent: #0D6E66; --accent-ink: #FFFFFF; --signal: #B5651D; --sel: #E3F1EF;
-  --f-display: "Unbounded", "Golos Text", system-ui, sans-serif;
-  --f-body: "Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --bg: #F2F1EC; --surface: #FFFFFF; --fg: #0F1B2D; --muted: #5B6575;
+  --line: #D9D7CF; --accent: #0F1B2D; --accent-ink: #F2F1EC; --signal: #B07A2A; --sel: #ECE6D8;
+  --brass: #B07A2A;
+  --f-display: "Onest", system-ui, sans-serif;
+  --f-body: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0E1312; --surface: #161D1C; --fg: #E6ECEA; --muted: #9AA8A5;
-  --line: #27322F; --accent: #4FC7B9; --accent-ink: #0B1412; --signal: #E0A15E; --sel: #16302D;
+  --bg: #0C141F; --surface: #142030; --fg: #E9EAE6; --muted: #9AA3B2;
+  --line: #253246; --accent: #E9EAE6; --accent-ink: #0C141F; --signal: #D6A24E; --sel: #1F2C3F;
+  --brass: #D6A24E;
   color-scheme: dark } }
 :root[data-theme="dark"] {
-  --bg: #0E1312; --surface: #161D1C; --fg: #E6ECEA; --muted: #9AA8A5;
-  --line: #27322F; --accent: #4FC7B9; --accent-ink: #0B1412; --signal: #E0A15E; --sel: #16302D;
+  --bg: #0C141F; --surface: #142030; --fg: #E9EAE6; --muted: #9AA3B2;
+  --line: #253246; --accent: #E9EAE6; --accent-ink: #0C141F; --signal: #D6A24E; --sel: #1F2C3F;
+  --brass: #D6A24E;
   color-scheme: dark }
 
 * { box-sizing: border-box; }
@@ -73,6 +80,8 @@ input.name, textarea.name { font: inherit; font-size: 20px; padding: 14px 16px; 
 .msg { white-space: pre-wrap; font: 14px/1.6 var(--f-mono); background: var(--surface); border: 1px solid var(--line);
   border-radius: 10px; padding: 14px; overflow-x: auto; margin: 0; }
 .ok { color: var(--accent); font-weight: 600; }
+.brand { display: flex; align-items: center; gap: 10px; font: 650 22px var(--f-display); letter-spacing: -0.01em; }
+.brand svg { width: 30px; height: 30px; }
 ol.steps { list-style: none; margin: 0; padding: 0; counter-reset: s; display: grid; }
 ol.steps li { counter-increment: s; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 2px 12px;
   padding: 14px 0; border-top: 1px solid var(--line); }
@@ -108,7 +117,7 @@ const ICONS={"gmail":{"hex":"EA4335","d":"M24 5.457v13.909c0 .904-.732 1.636-1.6
 (function () {
   var T = {
     ru: {
-      title: "Claude под ключ", back: "← Назад", next: "Дальше",
+      title: "Steerwell — личная AI-система", back: "← Назад", next: "Дальше",
       h1: "Вся ваша работа в одном окне Claude",
       sub: "Почта, задачи, Telegram и документы. Пишете Claude одной фразой, он сам находит письмо, файл или переписку и готовит ответ.",
       facts: [["9 900 ₽", "первым 10 клиентам"], ["30 мин", "созвон"], ["14 дней", "поддержки и возврат"]],
@@ -146,7 +155,7 @@ const ICONS={"gmail":{"hex":"EA4335","d":"M24 5.457v13.909c0 .904-.732 1.636-1.6
       sendHint: "Кнопка копирует текст и открывает чат с @dzubaart. Если текст не вставился сам, вставьте его.",
       copied: "Текст скопирован.", copiedTail: " Вставьте его в чат, если он не появился сам.",
       selected: "Текст выделен: скопируйте его и вставьте в чат.",
-      foot: "Артур · настраиваю Claude под работу человека · @dzubaart · dzubaart1@gmail.com",
+      foot: "Steerwell · Артур · t.me/steerwell · @dzubaart · dzubaart1@gmail.com",
       orEmail: "Нет Telegram? Пришлите тот же текст на почту:", copyEmail: "Скопировать адрес", emailCopied: "Адрес скопирован",
       L: { other: "Другая", outlook: "Outlook / Microsoft 365", yandex: "Яндекс", maildotru: "Mail.ru", none: "Пока нигде",
            mstodo: "Microsoft To Do", planfix: "ПланФикс", googledrive: "Google Drive и документы", googlecalendar: "Календарь",
@@ -162,7 +171,7 @@ const ICONS={"gmail":{"hex":"EA4335","d":"M24 5.457v13.909c0 .904-.732 1.636-1.6
            newtasks: "менеджер задач с нуля", week: "недельный отчёт" }
     },
     en: {
-      title: "Claude, set up for you", back: "← Back", next: "Next",
+      title: "Steerwell — your personal AI operating system", back: "← Back", next: "Next",
       h1: "All your work in one Claude window",
       sub: "Email, tasks, Telegram and documents. Ask Claude in one sentence and it finds the email, file or chat and drafts the reply.",
       facts: [["$197", "for the first 10 clients"], ["30 min", "call"], ["14 days", "support + refund"]],
@@ -200,7 +209,7 @@ const ICONS={"gmail":{"hex":"EA4335","d":"M24 5.457v13.909c0 .904-.732 1.636-1.6
       sendHint: "The button copies the text and opens a chat with @dzubaart. If the text doesn't appear, paste it.",
       copied: "Copied.", copiedTail: " Paste it into the chat if it isn't there already.",
       selected: "Text selected: copy it and paste it into the chat.",
-      foot: "Arthur · I set up Claude around how you work · dzubaart1@gmail.com · @dzubaart",
+      foot: "Steerwell · Arthur · t.me/steerwell · dzubaart1@gmail.com · @dzubaart",
       orEmail: "Prefer email? Send the same text to:", copyEmail: "Copy address", emailCopied: "Address copied",
       L: { other: "Other", outlook: "Outlook / Microsoft 365", yandex: "Yandex", maildotru: "Mail.ru", none: "Nowhere yet",
            mstodo: "Microsoft To Do", planfix: "Planfix", googledrive: "Google Drive and docs", googlecalendar: "Calendar",
@@ -362,7 +371,7 @@ const ICONS={"gmail":{"hex":"EA4335","d":"M24 5.457v13.909c0 .904-.732 1.636-1.6
       return;
     }
     if (s.id === "intro") {
-      stage.innerHTML = '<h1>' + t("h1") + '</h1><p class="sub">' + t("sub") + '</p>' +
+      stage.innerHTML = '<div class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="25" fill="none" stroke="currentColor" stroke-width="5"/><rect x="30" y="3" width="4" height="8" rx="2" fill="var(--brass)"/><path d="M32 32 L47.5 16.5 L41 34 Z" fill="var(--brass)"/><path d="M32 32 L16.5 47.5 L23 30 Z" fill="currentColor"/><circle cx="32" cy="32" r="4" fill="currentColor"/></svg>steerwell</div><h1>' + t("h1") + '</h1><p class="sub">' + t("sub") + '</p>' +
         '<div class="logos">' + ["gmail", "telegram", "notion", "todoist", "ticktick", "googledrive", "linkedin", "trello"].map(icon).join("") + '</div>' +
         '<div class="facts">' + t("facts").map(function (f) { return '<span><b>' + f[0] + '</b> ' + f[1] + '</span>'; }).join("") + '</div>' +
         '<div class="cta-row"><button class="btn" type="button" id="next">' + t("start") + '</button>' +
